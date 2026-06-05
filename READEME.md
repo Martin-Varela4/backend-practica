@@ -39,3 +39,5 @@ Se encarga de comunicarse con la base de dato
     -(MONGOOSE)
     
 
+instalar : dotenv, jsonwebtoken, bcrypt para poryecto picadito
+Mirar en pagina: npm
