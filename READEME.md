@@ -40,4 +40,9 @@ Se encarga de comunicarse con la base de dato
     
 
 instalar : dotenv, jsonwebtoken, bcrypt para poryecto picadito
-Mirar en pagina: npm
+Mirar en pagina: 
+
+
+
+@@map("usuarios") <--- cambiar nommbre de tabla
+// Prisma: crear modelos que esten relaciones de 1..n y de n..n (4 modelos)

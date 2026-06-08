@@ -1,13 +1,89 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
-// datasource db {
-//   provider = "postgresql"
-// }
+datasource db {
+  provider = "mysql"
+}
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// 1. USUARIOS
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relación 1:1 -> Un usuario tiene un único carrito activo
+  cart      Cart?
+}
+
+// 2. CATEGORÍAS DE PRODUCTOS
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+
+  // Relación 1:N -> Una categoría puede tener muchos productos
+  products  Product[]
+}
+
+// 3. PRODUCTOS
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?  @db.Text
+  price       Decimal  @db.Decimal(10, 2)
+  stock       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relación 1:N -> El producto pertenece a una categoría obligatoria
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  // Relación 1:N -> Un producto puede estar guardado en muchos ítems de carritos
+  cartItems   CartItem[]
+}
+
+// 4. CARRITO DE COMPRAS
+model Cart {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relación 1:1 -> El carrito pertenece de forma exclusiva a un usuario
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relación 1:N -> Un carrito contiene múltiples productos detallados (ítems)
+  items     CartItem[]
+}
+
+// 5. ÍTEMS DEL CARRITO (Tabla intermedia / relación compuesta)
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+
+  // Relación 1:N -> El ítem pertenece a un carrito específico
+  cartId    Int
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  // Relación 1:N -> El ítem especifica qué producto se está guardando
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // Garantiza que no se duplique el mismo producto dentro del mismo carrito
+  @@unique([cartId, productId])
+}
